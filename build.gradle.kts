@@ -3,7 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    `maven-publish`
 }
+
+group = "com.github.Pobiwan007"
+version = "1.0.0"
 
 android {
     namespace = "com.basecomposeview"
@@ -27,6 +31,12 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildFeatures {
@@ -53,4 +63,13 @@ dependencies {
     implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            artifactId = "baseComposeView"
+            afterEvaluate { from(components["release"]) }
+        }
+    }
 }
