@@ -1,39 +1,50 @@
 package com.basecomposeview.base
 
-import androidx.activity.ComponentActivity
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
+/**
+ * Hides / shows system bars while this composable is in the composition and restores
+ * them when it leaves. Bars can be revealed temporarily with a swipe.
+ */
 @Composable
 fun SystemUiController(
     hideStatusBar: Boolean = true,
     hideNavBar: Boolean = true,
     darkStatusBarIcons: Boolean = true
 ) {
-    val context = LocalContext.current
-    val window = (context as ComponentActivity).window
-    val insetsController = WindowInsetsControllerCompat(window, LocalView.current)
-    DisposableEffect(Unit) {
-        // Set the system UI to be immersive and hide the navigation bar
-        insetsController.systemBarsBehavior =
+    val view = LocalView.current
+    if (view.isInEditMode) return // Android Studio preview has no window
+    val window = view.context.findActivity()?.window ?: return
+
+    DisposableEffect(window, hideStatusBar, hideNavBar, darkStatusBarIcons) {
+        val controller = WindowCompat.getInsetsController(window, view)
+        controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-        //insetsController.hide(android.view.WindowInsets.Type.systemBars())
-        if (hideNavBar)
-            insetsController.hide(WindowInsetsCompat.Type.navigationBars())
+        if (hideNavBar) controller.hide(WindowInsetsCompat.Type.navigationBars())
         if (hideStatusBar) {
-            insetsController.hide(WindowInsetsCompat.Type.statusBars())
+            controller.hide(WindowInsetsCompat.Type.statusBars())
         } else {
-            insetsController.isAppearanceLightStatusBars = darkStatusBarIcons
+            controller.isAppearanceLightStatusBars = darkStatusBarIcons
         }
+
         onDispose {
-            // Optionally, you could reset the UI on dispose if needed
-            insetsController.show(WindowInsetsCompat.Type.systemBars())
+            controller.show(WindowInsetsCompat.Type.systemBars())
         }
     }
+}
+
+/** Unwraps [ContextWrapper]s (e.g. ContextThemeWrapper, Hilt's wrapper) to find the hosting Activity. */
+internal tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
