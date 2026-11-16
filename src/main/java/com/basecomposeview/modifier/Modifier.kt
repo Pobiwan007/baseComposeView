@@ -1,33 +1,23 @@
 package com.basecomposeview.modifier
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asComposePath
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 
-@Composable
-fun Modifier.noIndicationClickable(onClick: () -> Unit) = this.then(
-    clickable(
-        interactionSource = remember { MutableInteractionSource() },
-        indication = null
-    ){
-        onClick()
-    }
-)
-@Composable
+/** [clickable] without ripple / indication. */
+fun Modifier.noIndicationClickable(onClick: () -> Unit): Modifier =
+    clickable(interactionSource = null, indication = null, onClick = onClick)
+
+/** Draws a soft rounded "shadow" strip under the bottom edge of the element. */
 fun Modifier.addBottomShadow(shadowColor: Color = Color.Gray, shadowHeightRatio: Float = 6f) = this.then(
     drawBehind {
         val shadowOffset = Offset(shadowHeightRatio, shadowHeightRatio)
