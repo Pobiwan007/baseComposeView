@@ -1,6 +1,5 @@
 package com.basecomposeview.checkbox
 
-import android.health.connect.datatypes.units.Length
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
